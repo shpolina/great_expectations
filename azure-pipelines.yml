@@ -362,7 +362,8 @@ stages:
 
           - script: |
               pip install pytest pytest-azurepipelines
-              pytest -v -m docs --no-spark --no-postgresql --no-sqlalchemy
+              # TODO enable spark tests
+              pytest -v -m docs --no-spark
             displayName: 'pytest'
 
   - stage: cli_integration
