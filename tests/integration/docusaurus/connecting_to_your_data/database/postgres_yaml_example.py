@@ -3,7 +3,6 @@ from ruamel import yaml
 import great_expectations as ge
 from great_expectations.core.batch import BatchRequest, RuntimeBatchRequest
 
-
 context = ge.get_context()
 
 datasource_yaml = """
