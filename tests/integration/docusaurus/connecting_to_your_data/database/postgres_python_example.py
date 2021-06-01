@@ -2,14 +2,7 @@ from ruamel import yaml
 
 import great_expectations as ge
 from great_expectations.core.batch import BatchRequest, RuntimeBatchRequest
-from tests.integration.docusaurus.connecting_to_your_data.database.util import load_data_into_database
 
-CONNECTION_STRING = "postgresql+psycopg2://postgres:@localhost/test_ci"
-load_data_into_database(
-    "taxi_data",
-    "./data/yellow_trip_data_sample_2019-01.csv",
-    CONNECTION_STRING,
-)
 
 context = ge.get_context()
 
@@ -34,7 +27,9 @@ datasource_config = {
 
 # Please note this override is only to provide good UX for docs and tests.
 # In normal usage you'd set your path directly in the yaml above.
-datasource_config["execution_engine"]["connection_string"] = CONNECTION_STRING
+datasource_config["execution_engine"][
+    "connection_string"
+] = "postgresql+psycopg2://postgres:@localhost/test_ci"
 
 context.test_yaml_config(yaml.dump(datasource_config))
 

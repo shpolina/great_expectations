@@ -19,6 +19,27 @@ class BackendDependencies(enum.Enum):
     SQLALCHEMY = "SQLALCHEMY"
 
 
+def get_database_csv_loader(
+    table_name: str, file_relative_csv_path: str, connection_string: str
+):
+    absolute_csv_path = os.path.abspath(
+        file_relative_path(__file__, file_relative_csv_path)
+    )
+
+    def _load_data():
+        import pandas as pd
+        import sqlalchemy as sa
+
+        engine = sa.create_engine(connection_string)
+        engine.execute(f"DROP TABLE IF EXISTS {table_name}")
+        print(f"Dropping table {table_name}")
+        df = pd.read_csv(absolute_csv_path)
+        print(f"Creating table {table_name} from {absolute_csv_path}")
+        df.to_sql(name=table_name, con=engine, index=False)
+
+    return _load_data
+
+
 docs_test_matrix = [
     {
         "user_flow_script": "tests/integration/docusaurus/connecting_to_your_data/filesystem/pandas_yaml_example.py",
@@ -36,15 +57,23 @@ docs_test_matrix = [
         "user_flow_script": "tests/integration/docusaurus/connecting_to_your_data/database/postgres_yaml_example.py",
         "base_dir": file_relative_path(__file__, "../../"),
         "data_context_dir": "tests/integration/fixtures/no_datasources/great_expectations",
-        "data_dir": "tests/test_sets/taxi_yellow_trip_data_samples",
         "extra_backend_dependencies": BackendDependencies.POSTGRESQL,
+        "data_setup_callable": get_database_csv_loader(
+            table_name="taxi_data",
+            file_relative_csv_path="../test_sets/taxi_yellow_trip_data_samples/yellow_trip_data_sample_2019-01.csv",
+            connection_string="postgresql+psycopg2://postgres:@localhost/test_ci",
+        ),
     },
     {
         "user_flow_script": "tests/integration/docusaurus/connecting_to_your_data/database/postgres_python_example.py",
         "base_dir": file_relative_path(__file__, "../../"),
         "data_context_dir": "tests/integration/fixtures/no_datasources/great_expectations",
-        "data_dir": "tests/test_sets/taxi_yellow_trip_data_samples",
         "extra_backend_dependencies": BackendDependencies.POSTGRESQL,
+        "data_setup_callable": get_database_csv_loader(
+            table_name="taxi_data",
+            file_relative_csv_path="../test_sets/taxi_yellow_trip_data_samples/yellow_trip_data_sample_2019-01.csv",
+            connection_string="postgresql+psycopg2://postgres:@localhost/test_ci",
+        ),
     },
 ]
 
@@ -134,14 +163,18 @@ def _execute_integration_test(test_configuration, tmp_path):
             test_context_dir,
         )
 
+        # Test Data
         if test_configuration.get("data_dir") is not None:
-            # Test Data
             source_data_dir = os.path.join(base_dir, test_configuration.get("data_dir"))
             test_data_dir = os.path.join(tmp_path, "data")
             shutil.copytree(
                 source_data_dir,
                 test_data_dir,
             )
+
+        db_setup_function = test_configuration.get("data_setup_callable")
+        if db_setup_function is not None:
+            db_setup_function()
 
         # UAT Script
         script_source = os.path.join(
