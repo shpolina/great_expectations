@@ -1,6 +1,8 @@
 trigger:
   - develop
   - main
+  - docs-merge-prep
+  - knoxpod
 
 resources:
   containers:
