@@ -522,7 +522,20 @@ class ExpectationConfiguration(SerializableDictDot):
                 "catch_exceptions": False,
             },
         },
-        "expect_column_most_common_value_to_be_in_set": {
+        "expect_column_most_common_value_count_to_be_between": {
+            "domain_kwargs": ["column", "row_condition", "condition_parser"],
+            "success_kwargs": ["min_value", "strict_min", "max_value", "strict_max"],
+            "default_kwarg_values": {
+                "min_value": None,
+                "max_value": None,
+                "strict_min": None,
+                "strict_max": None,
+                "result_format": "BASIC",
+                "include_config": True,
+                "catch_exceptions": False,
+            },
+        },
+         "expect_column_most_common_value_to_be_in_set": {
             "domain_kwargs": ["column", "row_condition", "condition_parser"],
             "success_kwargs": ["value_set", "ties_okay"],
             "default_kwarg_values": {

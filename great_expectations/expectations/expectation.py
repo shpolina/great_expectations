@@ -475,7 +475,7 @@ class Expectation(metaclass=MetaExpectation):
         if result_dict is None:
             return "--"
 
-        if result_dict.get("observed_value"):
+        if result_dict.get("observed_value") is not None:
             observed_value = result_dict.get("observed_value")
             if isinstance(observed_value, (int, float)) and not isinstance(
                 observed_value, bool
@@ -639,8 +639,7 @@ class Expectation(metaclass=MetaExpectation):
             evaluation_parameters, interactive_evaluation, data_context
         )
         evr = validator.graph_validate(
-            configurations=[configuration],
-            runtime_configuration=runtime_configuration,
+            configurations=[configuration], runtime_configuration=runtime_configuration,
         )[0]
 
         return evr
@@ -760,8 +759,7 @@ class Expectation(metaclass=MetaExpectation):
             validation_result = None
             try:
                 validation_results = self._instantiate_example_validation_results(
-                    test_batch=test_batch,
-                    expectation_config=expectation_config,
+                    test_batch=test_batch, expectation_config=expectation_config,
                 )
                 validation_result = validation_results[0]
             except (
@@ -805,9 +803,7 @@ class Expectation(metaclass=MetaExpectation):
                 if len(tests) > 0:
                     if execution_engines is not None:
                         test_results = self._get_test_results(
-                            snake_name,
-                            tests,
-                            execution_engines,
+                            snake_name, tests, execution_engines,
                         )
                         report_obj.update({"test_report": test_results})
             except Exception as e:
@@ -826,10 +822,7 @@ class Expectation(metaclass=MetaExpectation):
             report_obj["diagnostics_report"] = error_entries
 
         error_entries.append(
-            {
-                "error_message": str(error),
-                "stack_trace": stack_trace,
-            }
+            {"error_message": str(error), "stack_trace": stack_trace,}
         )
 
         return report_obj
@@ -884,9 +877,7 @@ class Expectation(metaclass=MetaExpectation):
         return example_data, example_test
 
     def _instantiate_example_validation_results(
-        self,
-        test_batch: Batch,
-        expectation_config: ExpectationConfiguration,
+        self, test_batch: Batch, expectation_config: ExpectationConfiguration,
     ) -> List[ExpectationValidationResult]:
 
         validation_results = Validator(
@@ -901,17 +892,12 @@ class Expectation(metaclass=MetaExpectation):
         return supported_renderers
 
     def _get_test_results(
-        self,
-        snake_name,
-        examples,
-        execution_engines,
+        self, snake_name, examples, execution_engines,
     ):
         test_results = []
 
         exp_tests = generate_expectation_tests(
-            snake_name,
-            examples,
-            expectation_execution_engines_dict=execution_engines,
+            snake_name, examples, expectation_execution_engines_dict=execution_engines,
         )
 
         for exp_test in exp_tests:
@@ -987,8 +973,7 @@ class Expectation(metaclass=MetaExpectation):
                 _, renderer = _registered_renderers[expectation_name][renderer_name]
 
                 rendered_result = renderer(
-                    configuration=expectation_config,
-                    result=validation_result,
+                    configuration=expectation_config, result=validation_result,
                 )
                 standard_renderer_dict[
                     renderer_name
@@ -1002,10 +987,7 @@ class Expectation(metaclass=MetaExpectation):
             "custom": [],
         }
 
-    def _get_execution_engine_dict(
-        self,
-        upstream_metrics,
-    ) -> Dict:
+    def _get_execution_engine_dict(self, upstream_metrics,) -> Dict:
         expectation_engines = {}
         for provider in [
             "PandasExecutionEngine",

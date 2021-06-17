@@ -20,8 +20,8 @@ from great_expectations.expectations.metrics.metric_provider import metric_value
 from great_expectations.validator.validation_graph import MetricConfiguration
 
 
-class ColumnMostCommonValue(ColumnMetricProvider):
-    metric_name = "column.most_common_value"
+class ColumnMostCommonValueCount(ColumnMetricProvider):
+    metric_name = "column.most_common_value_count"
 
     @column_aggregate_value(engine=PandasExecutionEngine)
     def _pandas(cls, column, **kwargs):
@@ -38,9 +38,19 @@ class ColumnMostCommonValue(ColumnMetricProvider):
         runtime_configuration: Dict,
     ):
         column_value_counts = metrics.get("column.value_counts")
-        return list(
-            column_value_counts[column_value_counts == column_value_counts.max()].index
-        )
+        return  column_value_counts.max()
+    
+    @metric_value(engine=SqlAlchemyExecutionEngine)
+    def _sqlalchemy(
+        cls,
+        execution_engine: "SqlAlchemyExecutionEngine",
+        metric_domain_kwargs: Dict,
+        metric_value_kwargs: Dict,
+        metrics: Dict[Tuple, Any],
+        runtime_configuration: Dict,
+    ):
+        column_value_counts = metrics.get("column.value_counts")
+        return column_value_counts.max()
 
     @classmethod
     def _get_evaluation_dependencies(
